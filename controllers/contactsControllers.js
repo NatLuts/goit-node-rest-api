@@ -18,7 +18,7 @@ export const getAllContacts = async (req, res, next) => {
 export const getOneContact = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await contactsServices.getContactById(id);
+    const result = await contactsServices.getContactById({ _id: id });
 
     if (!result) {
       throw HttpError(404);
@@ -33,7 +33,7 @@ export const getOneContact = async (req, res, next) => {
 export const deleteContact = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const result = await contactsServices.deleteContact(id);
+    const result = await contactsServices.deleteContact({ _id: id });
     if (!result) {
       throw HttpError(400);
     }
@@ -66,11 +66,30 @@ export const updateContact = async (req, res, next) => {
       throw HttpError(400);
     }
     const { id } = req.params;
-    const result = await contactsServices.updateContactById(id, req.body);
+    const result = await contactsServices.updateContactById(
+      { _id: id },
+      req.body
+    );
     if (!result) {
       throw HttpError(400);
     }
     res.json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateStatusContact = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const data = await contactsServices.updateFavoriteStatus(
+      { _id: id },
+      req.body
+    );
+    if (!data) {
+      throw HttpError(404, "Not found");
+    }
+    res.json(data);
   } catch (error) {
     next(error);
   }

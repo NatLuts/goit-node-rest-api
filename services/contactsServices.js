@@ -1,54 +1,26 @@
-import fs from "fs/promises";
-import path from "path";
-import { nanoid } from "nanoid";
+import Contact from "../models/Contact.js";
 
-const contactsPath = path.resolve("db", "contacts.json");
-
-export async function listContacts() {
-  const data = await fs.readFile(contactsPath);
-  return JSON.parse(data);
+export function listContacts(params = {}) {
+  const { filter, fields, settings } = params;
+  return Contact.find(filter, fields, settings);
 }
 
-export async function getContactById(id) {
-  const contacts = await listContacts();
-  const result = contacts.find((item) => item.id === id);
-  return result || null;
+export function getContactById(filter) {
+  return Contact.findOne(filter);
 }
 
-function updateContacts(contacts) {
-  fs.writeFile(contactsPath, JSON.stringify(contacts));
+export function removeContact(filter) {
+  return Contact.findByIdAndDelete(filter);
 }
 
-export async function removeContact(id) {
-  const contacts = await listContacts();
-  const index = contacts.findIndex((item) => item.id === id);
-  if (index === -1) {
-    return null;
-  }
-  const [result] = contacts.splice(index, 1);
-  await updateContacts(contacts);
-  return result;
+export function addContact(data) {
+  return Contact.create(data);
 }
 
-export async function addContact(data) {
-  const contacts = await listContacts();
-  const newContact = {
-    id: nanoid(),
-    ...data,
-  };
-  contacts.push(newContact);
-  await fs.writeFile(contactsPath, JSON.stringify(contacts, null, 2));
-  return newContact;
+export function updateContactById(filter, data) {
+  return Contact.findOneAndUpdate(filter, data);
 }
 
-export const updateContactById = async (id, data) => {
-  const contacts = await listContacts();
-  const index = contacts.findIndex((item) => item.id === id);
-  if (index === -1) {
-    return null;
-  }
-  contacts[index] = { ...contacts[index], ...data };
-  await updateContacts(contacts);
-
-  return contacts[index];
-};
+export function updateFavoriteStatus(filter, data) {
+  return Contact.findByIdAndUpdate(filter, data);
+}
