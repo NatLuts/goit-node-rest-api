@@ -1,4 +1,4 @@
-import express from "express";
+import express, { application } from "express";
 import {
   getAllContacts,
   getOneContact,
@@ -10,8 +10,11 @@ import {
 
 import { isValidId } from "../middlewares/isValidId.js";
 import { isEmptyBody } from "../middlewares/isEmptyBody.js";
+import authenticate from "../middlewares/authenticate.js";
 
 const contactsRouter = express.Router();
+
+contactsRouter.use(authenticate);
 
 contactsRouter.get("/", getAllContacts);
 
