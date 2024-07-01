@@ -5,9 +5,15 @@ import {
   updateContactSchema,
 } from "../schemas/contactsSchemas.js";
 
+import getFilterWithIdOwner from "../helpers/getFilterWithIdOwner.js";
+
 export const getAllContacts = async (req, res, next) => {
   try {
-    const result = await contactsServices.listContacts();
+    const { _id: owner } = req.user;
+    const filter = {
+      owner,
+    };
+    const result = await contactsServices.listContacts(filter);
 
     res.json(result);
   } catch (error) {
@@ -17,8 +23,8 @@ export const getAllContacts = async (req, res, next) => {
 
 export const getOneContact = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const result = await contactsServices.getContactById({ _id: id });
+    const filter = getFilterWithIdOwner(req);
+    const result = await contactsServices.getContactById(filter);
 
     if (!result) {
       throw HttpError(404);
@@ -32,8 +38,8 @@ export const getOneContact = async (req, res, next) => {
 
 export const deleteContact = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const result = await contactsServices.deleteContact({ _id: id });
+    const filter = getFilterWithIdOwner(req);
+    const result = await contactsServices.deleteContact(filter);
     if (!result) {
       throw HttpError(400);
     }
@@ -52,7 +58,9 @@ export const createContact = async (req, res, next) => {
       throw HttpError(400, error.message);
     }
 
-    const result = await contactsServices.addContact(req.body);
+    const { _id: owner } = req.user;
+
+    const result = await contactsServices.addContact({ ...req.body, owner });
     req.status(201).json(result);
   } catch (error) {
     next(error);
@@ -65,11 +73,8 @@ export const updateContact = async (req, res, next) => {
     if (error) {
       throw HttpError(400);
     }
-    const { id } = req.params;
-    const result = await contactsServices.updateContactById(
-      { _id: id },
-      req.body
-    );
+    const filter = getFilterWithIdOwner(req);
+    const result = await contactsServices.updateContactById(filter, req.body);
     if (!result) {
       throw HttpError(400);
     }
@@ -81,11 +86,8 @@ export const updateContact = async (req, res, next) => {
 
 export const updateStatusContact = async (req, res, next) => {
   try {
-    const { id } = req.params;
-    const data = await contactsServices.updateFavoriteStatus(
-      { _id: id },
-      req.body
-    );
+    const filter = getFilterWithIdOwner(req);
+    const data = await contactsServices.updateFavoriteStatus(filter, req.body);
     if (!data) {
       throw HttpError(404, "Not found");
     }
