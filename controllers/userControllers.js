@@ -4,6 +4,7 @@ import * as userServices from "../services/userServices.js";
 import { createToken } from "../helpers/jwt.js";
 import fs from "fs/promises";
 import path from "path";
+import gravatar from "gravatar";
 
 const avatarDir = path.resolve("public", "avatars");
 
@@ -20,6 +21,7 @@ export const signup = async (req, res) => {
   const newUser = await userServices.signup({
     ...req.body,
     password: hashPassword,
+    avatarURL: gravatar.url(email),
   });
   res.status(201).json({
     username: newUser.username,
@@ -83,5 +85,5 @@ export const updateAvatar = async (req, res) => {
   await fs.rename(oldPath, newPath);
   const avatarURL = path.join("avatars", filename);
   await userServices.updateAvatar(_id, avatarURL);
-  res.json([avatarURL]);
+  res.json({ avatarURL });
 };
