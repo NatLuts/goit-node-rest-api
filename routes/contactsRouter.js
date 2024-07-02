@@ -11,6 +11,7 @@ import {
 import { isValidId } from "../middlewares/isValidId.js";
 import { isEmptyBody } from "../middlewares/isEmptyBody.js";
 import authenticate from "../middlewares/authenticate.js";
+import upload from "../middlewares/upload.js";
 
 const contactsRouter = express.Router();
 

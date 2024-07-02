@@ -2,6 +2,10 @@ import HttpError from "../helpers/HttpError.js";
 import bcrypt from "bcrypt";
 import * as userServices from "../services/userServices.js";
 import { createToken } from "../helpers/jwt.js";
+import fs from "fs/promises";
+import path from "path";
+
+const avatarDir = path.resolve("public", "avatars")
 
 export const signup = async (req, res) => {
   const { email, password } = req.body;
@@ -65,3 +69,16 @@ export const signout = async (req, res) => {
     message: "Logout success",
   });
 };
+
+export const updateAvatar = async (req, res) => {
+  const { _id } = req.user;
+  const { path: oldPath, filename } = req.file;
+  const newPath = path.join(avatarDir, filename)
+  await fs.rename(oldPath, newPath)
+   const avatar = path.join("avatars", filename);
+
+  Jimp.read(filename).then((image) => {
+    image.resize(250, 250).catch((error) => {
+      console.log(error.message);
+    });
+  })
