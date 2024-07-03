@@ -4,11 +4,17 @@ import {
   signup,
   getCurrent,
   signout,
+  verify,
+  resendEmail,
 } from "../controllers/userControllers.js";
 
 import { isEmptyBody } from "../middlewares/isEmptyBody.js";
 import validateBody from "../helpers/validateBody.js";
-import { authSigninSchema, authSignupSchema } from "../schemas/authSchemas.js";
+import {
+  authSigninSchema,
+  authSignupSchema,
+  authEmailSchema,
+} from "../schemas/authSchemas.js";
 import authenticate from "../middlewares/authenticate.js";
 import upload from "../middlewares/upload.js";
 
@@ -23,6 +29,15 @@ userRouter.post(
 );
 
 userRouter.post("/signin", isEmptyBody, validateBody(authSigninSchema), signin);
+
+userRouter.get("/verify/:verificationToken", verify);
+
+userRouter.post(
+  "/verify",
+  isEmptyBody,
+  validateBody(authEmailSchema),
+  resendEmail
+);
 
 userRouter.get("/current", authenticate, getCurrent);
 
